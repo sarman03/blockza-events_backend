@@ -35,6 +35,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use('/api/events', eventRoutes);
+app.use('/api/directory', require('./routes/companyRoutes'));
 
 const PORT = process.env.PORT || 5000;
 
