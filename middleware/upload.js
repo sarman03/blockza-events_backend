@@ -19,7 +19,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Configure storage
+// Base upload storage configuration
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -29,12 +29,11 @@ const storage = new CloudinaryStorage({
   },
 });
 
-// Configure multer upload
+// Base upload middleware (for events)
 const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: function (req, file, cb) {
-    // Allow only images
     const filetypes = /jpeg|jpg|png/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -46,4 +45,45 @@ const upload = multer({
   },
 });
 
-module.exports = { upload, cloudinary };
+// Company storage configuration
+const companyStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: (req, file) => {
+      switch (file.fieldname) {
+        case 'logo':
+          return 'company-directory/logos';
+        case 'founderImage':
+          return 'company-directory/founders';
+        case 'banner':
+          return 'company-directory/banners';
+        default:
+          return 'company-directory/misc';
+      }
+    },
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    transformation: [{ width: 800, crop: 'scale' }],
+  },
+});
+
+// Company upload middleware
+const uploadCompanyFiles = multer({
+  storage: companyStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: function (req, file, cb) {
+    const filetypes = /jpeg|jpg|png/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only image files are allowed!'));
+  },
+}).fields([
+  { name: 'logo', maxCount: 1 },
+  { name: 'founderImage', maxCount: 1 },
+  { name: 'banner', maxCount: 1 }
+]);
+
+module.exports = { upload, uploadCompanyFiles, cloudinary };
