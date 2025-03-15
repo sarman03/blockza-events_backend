@@ -21,7 +21,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['https://blockza-events-frontend.netlify.app', 'http://127.0.0.1:3000', 'http://localhost:3000'],
+  origin: ['https://blockza-events-frontend.netlify.app', 'http://bd3sg-teaaa-aaaaa-qaaba-cai.localhost:4943', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
